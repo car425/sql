@@ -54,7 +54,12 @@ The store wants to keep customer addresses. Propose two architectures for the CU
 **HINT:** search type 1 vs type 2 slowly changing dimensions. 
 
 ```
-Your answer...
+Slowly Changing Dimension Type 1: This type of table will be updated regularly and new data will override existing data.
+
+Slowly Changing Dimension Type 2: This type of table will be updated regularly and new data will be added as a new row in addition to existing data.
+
+Both tables will share the same architecture.  However, their relationships with other tables may change.  In SCD Type 1, all of the non-customer ID columns will have a 1:1 relationship with their counterparts in other tables because only one set of data is allowed per customer.  In SCD Type 2, all of these columns could have a 1:1 or 1:many relationship with other tables because now many addresses, names, etc. may be available for each customer in the “Customer Address” table.
+
 ```
 
 ***
