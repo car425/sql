@@ -86,7 +86,7 @@ customer_purchases table that indicates how many different times that customer h
 	ORDER BY customer_id*/
 
 	SELECT *
-	,COUNT () OVER (Partition by product_id order by customer_id) as purchase_tally
+	,COUNT (product_id) OVER (Partition by product_id order by customer_id) as purchase_tally
 	FROM customer_purchases
 	ORDER BY customer_id;
 
@@ -170,6 +170,25 @@ SELECT
 			CROSS JOIN customer)
 GROUP BY product_id;
 
+/* Second attempt at answering question, in response to feedback received August 19, 2025 */
+
+DROP TABLE IF EXISTS temp.price_of_five;
+
+CREATE TABLE temp.price_of_five as
+SELECT vi.vendor_id, vendor_name, vi.product_id, product_name, original_price*5 as price_of_five
+				FROM vendor_inventory as vi
+				INNER JOIN product as p
+				ON vi.product_id = p.product_id
+				INNER JOIN vendor as v
+				ON vi.vendor_id = v.vendor_id
+				GROUP BY vi.product_id;
+			
+	SELECT* 
+	,SUM (price_of_five) OVER (PARTITION BY vendor_id) as total_per_vendor
+	FROM 
+	temp.price_of_five
+	CROSS JOIN customer;
+
 -- INSERT
 /*1.  Create a new table "product_units". 
 This table will contain only products where the `product_qty_type = 'unit'`. 
@@ -228,7 +247,14 @@ FROM
 	WHERE date_count_backwards = 1);
 	
 UPDATE product_units
-SET current_quantity =  (SELECT quantity FROM recent_date WHERE recent_date.product_id = product_units.product_id);
+SET 
+current_quantity =  (SELECT quantity FROM recent_date WHERE recent_date.product_id = product_units.product_id);
+
+UPDATE product_units
+SET current_quantity = 0 
+WHERE current_quantity ISNULL;
+
+
 
 
 /*Second, coalesce null values to 0 (if you don't have null values, figure out how to rearrange your query so you do.) */
