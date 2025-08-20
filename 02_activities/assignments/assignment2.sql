@@ -188,6 +188,22 @@ SELECT vi.vendor_id, vendor_name, vi.product_id, product_name, original_price*5 
 	FROM 
 	temp.price_of_five
 	CROSS JOIN customer;
+	
+/* Third attempt at answering question, in response to feedback received August 19, 2025 */
+
+SELECT *,
+SUM (price_of_five)  as total_per_vendor
+FROM
+	(SELECT  DISTINCT vi.vendor_id, vendor_name, vi.product_id, product_name, original_price*5 as price_of_five
+					FROM vendor_inventory as vi
+					INNER JOIN product as p
+					ON vi.product_id = p.product_id
+					INNER JOIN vendor as v
+					ON vi.vendor_id = v.vendor_id)
+
+CROSS JOIN customer 
+GROUP BY vendor_id;
+
 
 -- INSERT
 /*1.  Create a new table "product_units". 
